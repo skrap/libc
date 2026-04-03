@@ -2,7 +2,17 @@ use crate::off64_t;
 use crate::prelude::*;
 
 pub type wchar_t = c_uint;
-pub type time_t = c_long;
+
+cfg_if! {
+    // See RUST_LIBC_UCLIBC_USE_TIME64 env var if your uclibc has 64-bit time
+    if #[cfg(linux_time_bits64)] {
+        pub type time_t = c_longlong;
+        pub type suseconds_t = c_longlong;
+    } else {
+        pub type time_t = c_long;
+        pub type suseconds_t = c_long;
+    }
+}
 
 pub type clock_t = c_long;
 pub type fsblkcnt_t = c_ulong;
@@ -10,7 +20,7 @@ pub type fsfilcnt_t = c_ulong;
 pub type ino_t = c_ulong;
 pub type off_t = c_long;
 pub type pthread_t = c_ulong;
-pub type suseconds_t = c_long;
+
 
 pub type nlink_t = c_uint;
 pub type blksize_t = c_long;

@@ -54,6 +54,10 @@ const CHECK_CFG_EXTRA: &[(&str, &[&str])] = &[
 /// Musl architectures that set `#define _REDIR_TIME64 1`.
 const MUSL_REDIR_TIME64_ARCHES: &[&str] = &["arm", "hexagon", "mips", "powerpc", "x86"];
 
+/// uclibc architectures that set `#define __UCLIBC_USE_TIME64__`,
+/// see UCLIBC_USE_TIME64 in uclibc-ng source: extra/Configs/Config.in
+const UCLIBC_TIME64_ARCHES: &[&str] = &["arm", "mips"];
+
 fn main() {
     // Avoid unnecessary re-building.
     println!("cargo:rerun-if-changed=build.rs");
@@ -121,6 +125,12 @@ fn main() {
             set_cfg("musl32_time64");
             set_cfg("linux_time_bits64");
         }
+    }
+
+    let uclibc_use_time64 = env_flag("RUST_LIBC_UCLIBC_USE_TIME64");
+    println!("cargo:rerun-if-env-changed=RUST_LIBC_UCLIBC_USE_TIME64");
+    if target_env == "uclibc" && uclibc_use_time64 && UCLIBC_TIME64_ARCHES.contains(&target_arch.as_str()) {
+        set_cfg("linux_time_bits64");
     }
 
     let linux_time_bits64 = env::var("RUST_LIBC_UNSTABLE_LINUX_TIME_BITS64").is_ok();
