@@ -86,7 +86,7 @@ s! {
         pub flags: crate::__u32,
         pub nr: crate::__s32,
     }
-    
+
     pub struct tcp_info {
         pub tcpi_state: u8,
         pub tcpi_ca_state: u8,

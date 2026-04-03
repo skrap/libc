@@ -21,7 +21,6 @@ pub type ino_t = c_ulong;
 pub type off_t = c_long;
 pub type pthread_t = c_ulong;
 
-
 pub type nlink_t = c_uint;
 pub type blksize_t = c_long;
 pub type blkcnt_t = c_long;

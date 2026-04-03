@@ -2,9 +2,20 @@
 #![allow(clippy::match_like_matches_macro)]
 
 use std::fs::File;
-use std::io::{BufRead, BufReader, BufWriter, Write};
-use std::path::{Path, PathBuf};
-use std::{env, io};
+use std::io::{
+    BufRead,
+    BufReader,
+    BufWriter,
+    Write,
+};
+use std::path::{
+    Path,
+    PathBuf,
+};
+use std::{
+    env,
+    io,
+};
 
 fn do_cc() {
     let target = env::var("TARGET").unwrap();
@@ -3866,8 +3877,11 @@ fn test_linux(target: &str) {
             cfg.cfg("linux_time_bits64", None);
         }
     }
-    let uclibc_use_time64 = env::var("RUST_LIBC_UCLIBC_USE_TIME64").map(|val| val != "0").unwrap_or(false);
-    if uclibc && uclibc_use_time64 && (arm || mips) { // see UCLIBC_TIME64_ARCHES in libc/build.rs
+    let uclibc_use_time64 = env::var("RUST_LIBC_UCLIBC_USE_TIME64")
+        .map(|val| val != "0")
+        .unwrap_or(false);
+    if uclibc && uclibc_use_time64 && (arm || mips) {
+        // see UCLIBC_TIME64_ARCHES in libc/build.rs
         cfg.cfg("linux_time_bits64", None);
     }
     cfg.define("_GNU_SOURCE", None)
@@ -4313,8 +4327,8 @@ fn test_linux(target: &str) {
             "ptrace_syscall_info" if pointer_width == 32 => true,
 
             "canxl_frame"
-            | "fanotify_event_info_header"
-            | "fanotify_event_info_fid"
+            | "fanotify_event_info_header" // not in sys/fanotify.h in uclibc
+            | "fanotify_event_info_fid"  // not in sys/fanotify.h in uclibc
             | "tls12_crypto_info_sm4_gcm"
             | "tls12_crypto_info_sm4_ccm"
             | "tls12_crypto_info_aria_gcm_128"
@@ -4511,24 +4525,11 @@ fn test_linux(target: &str) {
             // Skip as this signal codes and trap reasons need newer headers
             "TRAP_PERF" => true,
 
-            // constants not available in uclibc 1.0.54
+            // constants not available in uclibc 1.0.45
             // but defined outside the uclibc library,
             // e.g. file format constants or kernel-defined
             // constants.
-            "EXTPROC"
-            | "IPPROTO_BEETPH"
-            | "IPPROTO_MPLS"
-            | "IPV6_HDRINCL"
-            | "IPV6_MULTICAST_ALL"
-            | "IPV6_PMTUDISC_INTERFACE"
-            | "IPV6_PMTUDISC_OMIT"
-            | "IPV6_ROUTER_ALERT_ISOLATE"
-            | "PACKET_MR_UNICAST"
-            | "RUSAGE_THREAD"
-            | "SHM_EXEC"
-            | "UDP_GRO"
-            | "UDP_SEGMENT"
-            | "ALG_SET_KEY_BY_KEY_SERIAL"
+            "ALG_SET_KEY_BY_KEY_SERIAL"
             | "AT_MINSIGSTKSZ"
             | "BUS_MCEERR_AO"
             | "BUS_MCEERR_AR"
@@ -4554,8 +4555,11 @@ fn test_linux(target: &str) {
             | "CANXL_XLF"
             | "CLOSE_RANGE_CLOEXEC"
             | "CLOSE_RANGE_UNSHARE"
+            | "EM_ARC_A5"
+            | "EM_OPENRISC"
             | "EM_TILEGX"
             | "EM_TILEPRO"
+            | "EXTPROC"
             | "FAN_ATTRIB"
             | "FAN_AUDIT"
             | "FAN_CREATE"
@@ -4597,14 +4601,24 @@ fn test_linux(target: &str) {
             | "FAN_RESPONSE_INFO_NONE"
             | "IFF_NO_CARRIER"
             | "IN_MASK_CREATE"
+            | "IPPROTO_BEETPH"
             | "IPPROTO_ETHERNET"
+            | "IPPROTO_MPLS"
             | "IPPROTO_MPTCP"
+            | "IPV6_HDRINCL"
+            | "IPV6_MULTICAST_ALL"
+            | "IPV6_PMTUDISC_INTERFACE"
+            | "IPV6_PMTUDISC_OMIT"
+            | "IPV6_ROUTER_ALERT_ISOLATE"
             | "MADV_DONTNEED_LOCKED"
+            | "MFD_EXEC"
+            | "MFD_NOEXEC_SEAL"
             | "NF_NETDEV_EGRESS"
             | "NFQA_PRIORITY"
             | "NLM_F_BULK"
             | "NT_PRFPREG"
             | "PACKET_FANOUT_FLAG_IGNORE_OUTGOING"
+            | "PACKET_MR_UNICAST"
             | "PACKET_VNET_HDR_SZ"
             | "POSIX_SPAWN_SETSID"
             | "PR_GET_MDWE"
@@ -4619,8 +4633,10 @@ fn test_linux(target: &str) {
             | "RTNLGRP_MCTP_IFADDR"
             | "RTNLGRP_STATS"
             | "RTNLGRP_TUNNEL"
+            | "RUSAGE_THREAD"
             | "SECCOMP_FILTER_FLAG_WAIT_KILLABLE_RECV"
             | "SEM_STAT_ANY"
+            | "SHM_EXEC"
             | "SI_DETHREAD"
             | "SO_PASSPIDFD"
             | "SO_PEERPIDFD"
@@ -4662,10 +4678,8 @@ fn test_linux(target: &str) {
             | "TRAP_UNK"
             | "TUN_F_USO4"
             | "TUN_F_USO6"
-            | "EM_OPENRISC"
-            | "EM_ARC_A5"
-            | "MFD_EXEC"
-            | "MFD_NOEXEC_SEAL"
+            | "UDP_GRO"
+            | "UDP_SEGMENT"
                 if uclibc =>
             {
                 true
@@ -4710,13 +4724,10 @@ fn test_linux(target: &str) {
 
             // value changed
             "NF_NETDEV_NUMHOOKS" if sparc64 => true,
-            
+
             // Canonical uclibc latest from toolchains.bootlin.com is based on kernel 5.15,
             // so opt out of tests for constants which are different in later kernels.
-            "NF_NETDEV_NUMHOOKS" 
-            | "RLIM_NLIMITS"
-            | "NFT_MSG_MAX"
-                if uclibc => true,
+            "NF_NETDEV_NUMHOOKS" | "RLIM_NLIMITS" | "NFT_MSG_MAX" if uclibc => true,
 
             // DIFF(main): fixed in 1.0 with e9abac9ac2
             "CLONE_CLEAR_SIGHAND" | "CLONE_INTO_CGROUP" => true,
@@ -4937,7 +4948,7 @@ fn test_linux(target: &str) {
             // Needs glibc 2.33 or later.
             "mallinfo2" => true,
 
-            // Not defined in uclibc as of 1.0.54
+            // Not defined in uclibc as of 1.0.45
             "gettid" if uclibc => true,
             "getauxval" if uclibc => true,
 

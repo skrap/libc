@@ -129,7 +129,10 @@ fn main() {
 
     let uclibc_use_time64 = env_flag("RUST_LIBC_UCLIBC_USE_TIME64");
     println!("cargo:rerun-if-env-changed=RUST_LIBC_UCLIBC_USE_TIME64");
-    if target_env == "uclibc" && uclibc_use_time64 && UCLIBC_TIME64_ARCHES.contains(&target_arch.as_str()) {
+    if target_env == "uclibc"
+        && uclibc_use_time64
+        && UCLIBC_TIME64_ARCHES.contains(&target_arch.as_str())
+    {
         set_cfg("linux_time_bits64");
     }
 
