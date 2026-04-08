@@ -1422,6 +1422,7 @@ cfg_if! {
 }
 
 pub const POSIX_SPAWN_USEVFORK: c_int = 64;
+#[cfg(not(target_env = "uclibc"))]
 pub const POSIX_SPAWN_SETSID: c_int = 128;
 
 pub const F_SEAL_FUTURE_WRITE: c_int = 0x0010;
