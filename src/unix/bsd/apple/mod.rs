@@ -1470,6 +1470,7 @@ s! {
         pub external_page_count: natural_t,
         pub internal_page_count: natural_t,
         pub total_uncompressed_pages_in_compressor: u64,
+        pub swapped_count: u64,
     }
 
     #[repr(packed(4))]
@@ -2112,7 +2113,8 @@ pub const ENOPOLICY: c_int = 103;
 pub const ENOTRECOVERABLE: c_int = 104;
 pub const EOWNERDEAD: c_int = 105;
 pub const EQFULL: c_int = 106;
-pub const ELAST: c_int = 106;
+pub const ENOTCAPABLE: c_int = 107;
+pub const ELAST: c_int = 107;
 
 pub const EAI_AGAIN: c_int = 2;
 pub const EAI_BADFLAGS: c_int = 3;
